@@ -1,8 +1,19 @@
 import argparse
+import pathlib
+
+import yaml
+
+source = "/mnt/perm/musique/source"
+data_file = pathlib.Path(source + "/data.yaml")
 
 
 def refresh():
-    pass
+    if data_file.exists():
+        data = yaml.load(data_file.read_text(encoding="utf-8"), Loader=yaml.BaseLoader) or []
+    else:
+        data = []
+
+    data_file.write_text(yaml.dump(data), encoding="utf-8")
 
 
 argparser = argparse.ArgumentParser(description="")
