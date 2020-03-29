@@ -24,11 +24,12 @@ def refresh():
     missing_data = [x for x in directories_in_source if x not in directories_in_data]
     if missing_data:
         for x in missing_data:
+            tracks = [{"name": x.name, "position": i} for i, x in enumerate(sorted(source.joinpath(x).iterdir()), start=1)]
             data.append({"name": x,
                          "release_id": "todo",
-                         "selected": [],
+                         "selected": [x.get("position") for x in tracks],
                          "source": "todo",
-                         "tracks": [{"name": x.name, "position": 0} for x in sorted(source.joinpath(x).iterdir())]})
+                         "tracks": tracks})
         print("added {} directories, don't forget to customize them before proceeding".format(len(missing_data)))
     else:
         print("nothing added")
