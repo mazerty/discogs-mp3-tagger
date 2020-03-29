@@ -20,7 +20,12 @@ def refresh():
     if missing_directories:
         raise Exception("missing directories in data", missing_directories)
 
-    [data.append({"name": x}) for x in directories_in_source if x not in directories_in_data]
+    [data.append({"name": x,
+                  "release_id": "todo",
+                  "selected": [],
+                  "source": "todo",
+                  "tracks": [{"name": x.name, "position": 0} for x in source.joinpath(x).iterdir()]})
+     for x in directories_in_source if x not in directories_in_data]
 
     data_file.write_text(yaml.dump(data), encoding="utf-8")
 
