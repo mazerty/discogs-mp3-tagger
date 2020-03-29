@@ -9,7 +9,7 @@ data_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/data.ya
 
 def refresh():
     if data_file.exists():
-        data = yaml.load(data_file.read_text(encoding="utf-8"), Loader=yaml.BaseLoader) or []
+        data = yaml.load(data_file.read_text(encoding="utf-8"), Loader=yaml.SafeLoader) or []
     else:
         print("data file {!s} not found, will be created".format(data_file))
         data = []
