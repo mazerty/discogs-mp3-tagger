@@ -5,7 +5,7 @@ import pathlib
 import yaml
 
 source = "/mnt/perm/musique/source"
-data_file = pathlib.Path(source + "/data.yaml")
+data_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/data.yaml")
 
 
 def refresh():
