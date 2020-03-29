@@ -1,10 +1,9 @@
 import argparse
-import os
 import pathlib
 
 import yaml
 
-source = "/mnt/perm/musique/source"
+source = pathlib.Path("/mnt/perm/musique/source")
 data_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/data.yaml")
 
 
@@ -14,7 +13,7 @@ def refresh():
     else:
         data = []
 
-    directories_in_source = [x for x in os.listdir(source) if os.path.isdir(source + "/" + x) and not x[0] == "."]
+    directories_in_source = [x.name for x in source.iterdir() if x.is_dir()]
     directories_in_data = [x.get("name") for x in data]
 
     missing_directories = [x for x in directories_in_data if x not in directories_in_source]
