@@ -24,10 +24,10 @@ def refresh():
                   "release_id": "todo",
                   "selected": [],
                   "source": "todo",
-                  "tracks": [{"name": x.name, "position": 0} for x in source.joinpath(x).iterdir()]})
+                  "tracks": [{"name": x.name, "position": 0} for x in sorted(source.joinpath(x).iterdir())]})
      for x in directories_in_source if x not in directories_in_data]
 
-    data_file.write_text(yaml.dump(data), encoding="utf-8")
+    data_file.write_text(yaml.dump(sorted(data, key=lambda x: x.get("name").lower())), encoding="utf-8")
 
 
 argparser = argparse.ArgumentParser(description="")
