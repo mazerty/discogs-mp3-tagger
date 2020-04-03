@@ -4,40 +4,25 @@ import pathlib
 import yaml
 
 source = pathlib.Path("/mnt/perm/musique/source")
-data_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/data.yaml")
+prepare_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/prepare.yaml")
 
 
-def refresh():
-    if data_file.exists():
-        data = yaml.load(data_file.read_text(encoding="utf-8"), Loader=yaml.SafeLoader) or []
-    else:
-        print("data file {!s} not found, will be created".format(data_file))
-        data = []
+def prepare():
+    content = []
 
-    directories_in_source = [x.name for x in source.iterdir() if x.is_dir()]
-    directories_in_data = [x.get("name") for x in data]
+    for directory in sorted(filter(lambda p: p.is_dir(), source.iterdir())):
+        mp3_files = sorted(filter(lambda p: p.name.endswith(".mp3"), directory.iterdir()))
+        tracks = [{"name": file.name, "position": index} for index, file in enumerate(mp3_files, start=1)]
+        content.append({"name": directory.name,
+                        "release_id": "todo",
+                        "source": "todo",
+                        "tracks": tracks,
+                        "selected": [x.get("position") for x in tracks]})
 
-    missing_directories = [x for x in directories_in_data if x not in directories_in_source]
-    if missing_directories:
-        raise Exception("missing directories in data", missing_directories)
-
-    missing_data = [x for x in directories_in_source if x not in directories_in_data]
-    if missing_data:
-        for x in missing_data:
-            tracks = [{"name": x.name, "position": i} for i, x in enumerate(sorted(source.joinpath(x).iterdir()), start=1)]
-            data.append({"name": x,
-                         "release_id": "todo",
-                         "selected": [x.get("position") for x in tracks],
-                         "source": "todo",
-                         "tracks": tracks})
-        print("added {} directories, don't forget to customize them before proceeding".format(len(missing_data)))
-    else:
-        print("nothing added")
-
-    data_file.write_text(yaml.dump(sorted(data, key=lambda x: x.get("name").lower())), encoding="utf-8")
+    prepare_file.write_text(yaml.dump(content), encoding="utf-8")
 
 
 argparser = argparse.ArgumentParser(description="")
-argparser.add_argument("command", choices=["refresh"])
+argparser.add_argument("command", choices=["prepare"])
 args = argparser.parse_args()
 globals()[args.command]()
