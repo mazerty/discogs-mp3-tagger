@@ -1,12 +1,13 @@
 import argparse
 import pathlib
-import pprint
+import time
 
 import requests
 import yaml
 
 source = pathlib.Path("/mnt/perm/musique/source")
 prepare_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/prepare.yaml")
+cache = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/cache")
 
 
 def prepare():
@@ -24,15 +25,35 @@ def prepare():
     prepare_file.write_text(yaml.dump(content), encoding="utf-8")
 
 
+def _download_missing_cache(prepare_data):
+    if not cache.is_dir():
+        cache.mkdir()
+
+    remaining_calls = 1  # let's assume we can call the discord api at least once
+    for item in prepare_data:
+        release_id = item.get("release_id")
+        item_cache = cache.joinpath(release_id + ".json")
+
+        if not item_cache.is_file():
+            if not remaining_calls:
+                print("rate limit reached, waiting")
+                time.sleep(60)
+
+            print("fetching release data: " + release_id)
+            response = session.get("https://api.discogs.com/releases/" + release_id)
+            response.raise_for_status()
+            item_cache.write_text(response.text, encoding="utf-8")
+
+            remaining_calls = int(response.headers["X-Discogs-Ratelimit-Remaining"])
+
+
 def plan():
     prepare_data = yaml.load(prepare_file.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
 
     if [item for item in prepare_data if item.get("release_id") == "todo"]:
         raise Exception("data needs to be customized")
 
-    for y in prepare_data:
-        json = session.get("https://api.discogs.com/releases/" + y.get("release")).json()
-        pprint.pprint(json)
+    _download_missing_cache(prepare_data)
 
 
 session = requests.Session()
