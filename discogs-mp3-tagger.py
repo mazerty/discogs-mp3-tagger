@@ -12,8 +12,8 @@ prepare_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/prep
 def prepare():
     content = []
 
-    for directory in sorted(filter(lambda p: p.is_dir(), source.iterdir())):
-        mp3_files = sorted(filter(lambda p: p.name.endswith(".mp3"), directory.iterdir()))
+    for directory in sorted([path for path in source.iterdir() if path.is_dir()]):
+        mp3_files = sorted([path for path in directory.iterdir() if path.name.endswith(".mp3")])
         tracks = [{"name": file.name, "position": index} for index, file in enumerate(mp3_files, start=1)]
         content.append({"name": directory.name,
                         "release_id": "todo",
@@ -27,7 +27,7 @@ def prepare():
 def plan():
     prepare_data = yaml.load(prepare_file.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
 
-    if filter(lambda x: x.get("release_id") == "todo", prepare_data):
+    if [item for item in prepare_data if item.get("release_id") == "todo"]:
         raise Exception("data needs to be customized")
 
     for y in prepare_data:
