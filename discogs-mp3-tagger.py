@@ -1,6 +1,7 @@
 import argparse
 import json
 import pathlib
+import sys
 import time
 
 import requests
@@ -9,6 +10,7 @@ import yaml
 source = pathlib.Path("/mnt/perm/musique/source")
 prepare_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/prepare.yaml")
 cache = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/cache")
+plan_file = pathlib.Path("/home/ubuntu/workspace/discogs-mp3-tagger-data/plan.yaml")
 
 
 def prepare():
@@ -55,6 +57,22 @@ def plan():
         raise Exception("data needs to be customized")
 
     _download_missing_cache(prepare_data)
+
+    content = []
+    for item in prepare_data:
+        cache_data = json.loads(cache.joinpath(item.get("release_id") + ".json").read_text(encoding="utf-8"))
+        content.append({
+            "album": cache_data.get("title"),
+            "artist": cache_data.get("artists")[0].get("name"),
+            "name": item.get("name"),
+            "release_id": item.get("release_id"),
+            "tracks": [{
+                "name": track.get("name"),
+                "position": track.get("position"),
+                "title": [cache_track.get("title") for cache_track in cache_data.get("tracklist") if cache_track.get("position") == track.get("position")][0]
+            } for track in item.get("tracks") if track.get("position") in item.get("selected")]
+        })
+    plan_file.write_text(yaml.dump(content, width=sys.maxsize), encoding="utf-8")
 
 
 session = requests.Session()
