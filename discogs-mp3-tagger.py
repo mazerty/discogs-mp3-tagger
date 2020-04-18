@@ -1,4 +1,5 @@
 import argparse
+import json
 import pathlib
 import time
 
@@ -42,7 +43,7 @@ def _download_missing_cache(prepare_data):
             print("fetching release data: " + release_id)
             response = session.get("https://api.discogs.com/releases/" + release_id)
             response.raise_for_status()
-            item_cache.write_text(response.text, encoding="utf-8")
+            item_cache.write_text(json.dumps(response.json(), indent=2), encoding="utf-8")
 
             remaining_calls = int(response.headers["X-Discogs-Ratelimit-Remaining"])
 
