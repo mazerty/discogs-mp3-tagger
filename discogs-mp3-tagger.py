@@ -83,6 +83,7 @@ def apply():
     for item in plan_data:
         album = target.joinpath(item.get("artist") + " - " + item.get("album") + " - " + item.get("release_id"))
         if not album.is_dir():
+            print("writing album: " + album.name)
             album.mkdir()
             for track in item.get("tracks"):
                 file = album.joinpath(track.get("position") + " - " + track.get("title") + ".mp3")
