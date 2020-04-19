@@ -28,7 +28,7 @@ def prepare():
                         "tracks": tracks,
                         "selected": [x.get("position") for x in tracks]})
 
-    prepare_file.write_text(yaml.dump(content), encoding="utf-8")
+    prepare_file.write_text(yaml.dump(content, width=sys.maxsize), encoding="utf-8")
 
 
 def _download_missing_cache(prepare_data):
