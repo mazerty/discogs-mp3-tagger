@@ -19,7 +19,7 @@ target = pathlib.Path("/mnt/perm/musique/target")
 def prepare():
     content = []
 
-    for directory in sorted([path for path in source.iterdir() if path.is_dir()]):
+    for directory in sorted([path for path in source.iterdir() if path.is_dir() and not path.name.startswith(".")]):
         mp3_files = sorted([path for path in directory.iterdir() if path.name.endswith(".mp3")])
         tracks = [{"name": file.name, "position": index} for index, file in enumerate(mp3_files, start=1)]
         content.append({"name": directory.name,
